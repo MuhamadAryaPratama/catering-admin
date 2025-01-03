@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../axiosClient";
 
-export default function AddFoods() {
+export default function AddCategory() {
   const [formData, setFormData] = useState({
     name: "",
     image: null,
@@ -13,27 +13,33 @@ export default function AddFoods() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Convert harga to number if the field is price
-    const processedValue = name === "harga" ? parseFloat(value) : value;
-    setFormData({ ...formData, [name]: processedValue });
+    setFormData({ ...formData, [name]: value });
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        setError("Please select a valid image file.");
+      if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+        setError("Please select a valid image file (JPG, JPEG, or PNG)");
         return;
       }
-      setFormData({ ...formData, gambar: file });
+      if (file.size > 2 * 1024 * 1024) {
+        // 2MB limit
+        setError("Image size should be less than 2MB");
+        return;
+      }
+      setFormData({ ...formData, image: file });
+      setError(null);
     }
   };
 
   const validateForm = () => {
     if (!formData.name.trim()) {
       setError("Category name is required");
+      return false;
+    }
+    if (!formData.image) {
+      setError("Category image is required");
       return false;
     }
     return true;
@@ -50,10 +56,7 @@ export default function AddFoods() {
 
     const data = new FormData();
     data.append("name", formData.name.trim());
-
-    if (formData.image) {
-      data.append("image", formData.image);
-    }
+    data.append("image", formData.image);
 
     try {
       const response = await axiosClient.post("/categories", data, {
@@ -63,17 +66,18 @@ export default function AddFoods() {
         },
       });
 
-      console.log("Food creation response:", response.data);
-
       if (response.data.status === "success") {
         setSuccess("Category added successfully!");
-        // Clear form
         setFormData({
           name: "",
           image: null,
         });
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = "";
+
         setTimeout(() => {
-          navigate("/categories");
+          navigate("/category");
         }, 1500);
       } else {
         setError(response.data.message || "Failed to add category");
@@ -88,48 +92,70 @@ export default function AddFoods() {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Add Category</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {success && <p className="text-green-500 mb-4">{success}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Category Name</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded p-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium">Image</label>
-          <input
-            type="file"
-            name="image"
-            onChange={handleFileChange}
-            accept="image/*"
-            className="w-full border border-gray-300 rounded p-2"
-          />
-        </div>
-        <div className="flex space-x-4">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Add Category
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/category")}
-            className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
-          >
-            Back
-          </button>
-        </div>
-      </form>
+    <div className="max-w-2xl mx-auto p-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h1 className="text-2xl font-bold mb-6">Add Category</h1>
+
+        {error && (
+          <div className="bg-red-50 text-red-500 p-4 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="bg-green-50 text-green-500 p-4 rounded-lg mb-4">
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2.5 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter category name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Category Image
+            </label>
+            <input
+              type="file"
+              name="image"
+              onChange={handleFileChange}
+              accept="image/jpeg,image/jpg,image/png"
+              className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <p className="mt-1 text-sm text-gray-500">
+              Accepted formats: JPG, JPEG, PNG (max 2MB)
+            </p>
+          </div>
+
+          <div className="flex space-x-4 pt-4">
+            <button
+              type="submit"
+              className="flex-1 bg-blue-600 text-white px-6 py-2.5 rounded-md hover:bg-blue-700 transition duration-200"
+            >
+              Add Category
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/category")}
+              className="flex-1 bg-gray-600 text-white px-6 py-2.5 rounded-md hover:bg-gray-700 transition duration-200"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

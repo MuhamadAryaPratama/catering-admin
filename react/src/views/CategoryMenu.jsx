@@ -15,7 +15,7 @@ function CategoryMenu() {
   const fetchCategories = async () => {
     try {
       const response = await axiosClient.get("/categories");
-      console.log("API Response:", response.data);
+      // console.log("API Response:", response.data);
       setCategories(response.data.data || []);
     } catch (err) {
       console.error("Error fetching categories:", err);
@@ -54,7 +54,7 @@ function CategoryMenu() {
           onClick={() => navigate("/category/tambah-category")}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          Tambah Menu
+          Tambah Kategori
         </button>
       </div>
       {categories.length > 0 ? (
@@ -87,7 +87,7 @@ function CategoryMenu() {
                 </td>
                 <td className="py-2 px-4 border-b flex space-x-2">
                   <button
-                    onClick={() => navigate(`/categories/edit/${category.id}`)}
+                    onClick={() => navigate(`/category/edit/${category.id}`)}
                     className="text-blue-600 hover:text-blue-800"
                   >
                     <svg

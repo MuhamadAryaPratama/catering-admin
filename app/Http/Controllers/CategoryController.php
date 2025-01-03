@@ -18,6 +18,19 @@ class CategoryController extends Controller
         return response()->json(['status' => 'success', 'data' => $categories], 200);
     }
 
+    public function show($id)
+    {
+        $category = Category::find($id);
+
+        if (!$category) {
+            return response()->json(['status' => 'error', 'message' => 'Category not found'], 404);
+        }
+
+        $category->image_url = $category->image ? Storage::disk('public')->url('category/' . $category->image) : null;
+
+        return response()->json(['status' => 'success', 'data' => $category], 200);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

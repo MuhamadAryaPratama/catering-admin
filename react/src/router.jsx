@@ -11,6 +11,7 @@ import ShoppingCart from "./views/ShoppingCart";
 import AddFoods from "./components/AddFoods";
 import EditFoods from "./components/EditFoods";
 import AddCategory from "./components/AddCategory";
+import EditCategory from "./components/EditCategory";
 
 // Function to check authentication
 const isAuthenticated = () => {
@@ -50,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: "category/tambah-category",
         element: <ProtectedRoute element={<AddCategory />} />,
+      },
+      {
+        path: "category/edit/:id",
+        element: <ProtectedRoute element={<EditCategory />} />,
       },
       {
         path: "orders",

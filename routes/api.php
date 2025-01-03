@@ -12,6 +12,7 @@ use App\Http\Controllers\PaymentController;
 // Public Routes (tanpa autentikasi)
 Route::get('/foods', [FoodController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::get('/categories/{id}/foods', [CategoryController::class, 'getFoodsByCategory']);
 Route::get('/foods/{id}', [FoodController::class, 'show']);
 
