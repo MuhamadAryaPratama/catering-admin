@@ -15,6 +15,7 @@ export default function FoodsMenu() {
   const fetchFoods = async () => {
     try {
       const response = await axiosClient.get("/foods");
+      // Pastikan response.data.data berisi array foods dengan data lengkap
       setFoods(response.data.data || []);
     } catch (err) {
       console.error("Error fetching foods:", err);
@@ -34,6 +35,12 @@ export default function FoodsMenu() {
       console.error("Error deleting food:", err);
       alert("Failed to delete food. Please try again later.");
     }
+  };
+
+  const formatCurrency = (number) => {
+    return `Rp ${number.toLocaleString("id-ID", {
+      minimumFractionDigits: 0,
+    })}`;
   };
 
   if (loading) {
@@ -74,11 +81,15 @@ export default function FoodsMenu() {
                 <td className="py-2 px-4 border-b text-center">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{food.nama}</td>
                 <td className="py-2 px-4 border-b">{food.deskripsi}</td>
-                <td className="py-2 px-4 border-b">Rp {food.harga}</td>
+                <td className="py-2 px-4 border-b">
+                  {formatCurrency(food.harga)}
+                </td>
                 <td className="py-2 px-4 border-b text-center">
                   {food.gambar_url ? (
                     <img
-                      src={food.gambar_url}
+                      src={`${import.meta.env.VITE_API_BASE_URL}${
+                        food.gambar_url
+                      }`}
                       alt={food.nama}
                       className="h-16 w-16 object-cover rounded"
                     />
@@ -87,7 +98,7 @@ export default function FoodsMenu() {
                   )}
                 </td>
                 <td className="py-2 px-4 border-b">
-                  {food.category?.nama || "Tanpa Kategori"}
+                  {food.category.name || "Tanpa Kategori"}
                 </td>
                 <td className="py-2 px-4 border-b flex space-x-2">
                   <button

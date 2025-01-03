@@ -17,7 +17,7 @@ function ForgotPassword() {
     setIsLoading(true);
 
     try {
-      const response = await axiosClient.post("/auth/forgot-password", {
+      const response = await axiosClient.post("/admin/auth/forgot-password", {
         email: email,
       });
 

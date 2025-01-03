@@ -1,30 +1,31 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import PropTypes from "prop-types"; // Import PropTypes for validation
+import PropTypes from "prop-types";
 import axiosClient from "../axiosClient";
 import Logo from "../assets/logo.png";
 
 export default function Navbar({ toggleSidebar }) {
-  const [user, setUser] = useState(null);
+  const [admin, setAdmin] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  const fetchUser = useCallback(async () => {
+  const fetchAdmin = useCallback(async () => {
     const token = localStorage.getItem("access_token");
 
     if (!token) {
-      console.log("No token found, user not logged in.");
+      console.log("No token found, admin not logged in.");
       return;
     }
 
     try {
-      const response = await axiosClient.post("/auth/me");
-      setUser(response.data);
+      const response = await axiosClient.post("/admin/auth/me");
+      setAdmin(response.data); // Update sesuai struktur data API
     } catch (error) {
-      console.error("Failed to fetch user:", error);
+      console.error("Failed to fetch admin:", error);
       if (error.response && error.response.status === 401) {
         localStorage.removeItem("access_token");
-        setUser(null);
+        setAdmin(null);
         navigate("/login");
       }
     }
@@ -32,9 +33,9 @@ export default function Navbar({ toggleSidebar }) {
 
   const handleLogout = async () => {
     try {
-      await axiosClient.post("/auth/logout");
+      await axiosClient.post("/admin/auth/logout");
       localStorage.removeItem("access_token");
-      setUser(null);
+      setAdmin(null);
       navigate("/login");
     } catch (error) {
       console.error("Failed to logout:", error);
@@ -47,15 +48,13 @@ export default function Navbar({ toggleSidebar }) {
     }
   };
 
-  const dropdownRef = useRef(null);
-
   useEffect(() => {
-    fetchUser();
+    fetchAdmin();
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [fetchUser]);
+  }, [fetchAdmin]);
 
   return (
     <div className="bg-gray-100 w-full">
@@ -63,17 +62,10 @@ export default function Navbar({ toggleSidebar }) {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
             {/* Logo */}
-            <Link to="/">
-              <img src={Logo} alt="Logo" className="h-16" />
-            </Link>
+            <img src={Logo} alt="Logo" className="h-20 pl-11" />
 
             <div className="flex items-center space-x-4">
-              {/* User Name (Visible on Mobile) */}
-              <div className="sm:hidden text-gray-800 text-lg font-semibold">
-                {user && <span>{user.name}</span>}
-              </div>
-
-              {/* Toggle Sidebar Button (Visible on Mobile Only) */}
+              {/* Toggle Sidebar Button (Mobile Only) */}
               <button
                 onClick={toggleSidebar}
                 className="sm:hidden p-2 bg-blue-500 text-white rounded-md shadow-md"
@@ -95,15 +87,15 @@ export default function Navbar({ toggleSidebar }) {
               </button>
             </div>
 
-            {/* User Dropdown */}
+            {/* Admin Dropdown */}
             <div className="hidden sm:flex sm:items-center">
-              {user ? (
+              {admin ? (
                 <div className="relative flex items-center" ref={dropdownRef}>
                   <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     className="text-gray-800 text-lg font-semibold hover:text-purple-600"
                   >
-                    {user.name}
+                    {admin.name}
                   </button>
                   {isMenuOpen && (
                     <div className="absolute top-full right-0 mt-2 bg-white shadow-lg rounded-lg py-2 w-48 z-50">
@@ -134,5 +126,5 @@ export default function Navbar({ toggleSidebar }) {
 
 // Define prop types
 Navbar.propTypes = {
-  toggleSidebar: PropTypes.func.isRequired, // Ensure toggleSidebar is a required function
+  toggleSidebar: PropTypes.func.isRequired,
 };

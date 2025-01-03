@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import axiosClient from "../axiosClient";
 
 export default function AddFoods() {
@@ -13,30 +13,61 @@ export default function AddFoods() {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
-  const navigate = useNavigate(); // Hook untuk navigasi
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axiosClient.get("/categories");
-        setCategories(response.data.data || []);
-      } catch (err) {
-        console.error("Error fetching categories:", err);
-        setError("Failed to fetch categories.");
-      }
-    };
-
     fetchCategories();
   }, []);
 
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosClient.get("/categories");
+      console.log("Categories fetched:", response.data);
+      const categoriesData = response.data.data || [];
+      setCategories(categoriesData);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      setError("Failed to load categories. Please try again later.");
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    // Convert harga to number if the field is price
+    const processedValue = name === "harga" ? parseFloat(value) : value;
+    setFormData({ ...formData, [name]: processedValue });
   };
 
   const handleFileChange = (e) => {
-    setFormData({ ...formData, gambar: e.target.files[0] });
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setError("Please select a valid image file.");
+        return;
+      }
+      setFormData({ ...formData, gambar: file });
+    }
+  };
+
+  const validateForm = () => {
+    if (!formData.nama.trim()) {
+      setError("Food name is required");
+      return false;
+    }
+    if (!formData.deskripsi.trim()) {
+      setError("Description is required");
+      return false;
+    }
+    if (!formData.harga || formData.harga <= 0) {
+      setError("Please enter a valid price");
+      return false;
+    }
+    if (!formData.category_id) {
+      setError("Please select a category");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
@@ -44,26 +75,53 @@ export default function AddFoods() {
     setError(null);
     setSuccess(null);
 
+    if (!validateForm()) {
+      return;
+    }
+
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      data.append(key, value);
-    });
+    data.append("nama", formData.nama.trim());
+    data.append("deskripsi", formData.deskripsi.trim());
+    data.append("harga", formData.harga);
+    data.append("category_id", formData.category_id);
+
+    if (formData.gambar) {
+      data.append("gambar", formData.gambar);
+    }
 
     try {
       const response = await axiosClient.post("/foods", data, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Accept: "application/json",
+        },
       });
-      setSuccess(response.data.message || "Food added successfully!");
-      setFormData({
-        nama: "",
-        deskripsi: "",
-        harga: "",
-        category_id: "",
-        gambar: null,
-      });
+
+      console.log("Food creation response:", response.data);
+
+      if (response.data.status === "success") {
+        setSuccess("Food added successfully!");
+        // Clear form
+        setFormData({
+          nama: "",
+          deskripsi: "",
+          harga: "",
+          category_id: "",
+          gambar: null,
+        });
+        // Redirect after short delay
+        setTimeout(() => {
+          navigate("/foods");
+        }, 1500);
+      } else {
+        setError(response.data.message || "Failed to add food");
+      }
     } catch (err) {
       console.error("Error adding food:", err);
-      setError("Failed to add food. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          "Failed to add food. Please check all fields and try again."
+      );
     }
   };
 
@@ -102,6 +160,8 @@ export default function AddFoods() {
             value={formData.harga}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded p-2"
+            min="0"
+            step="0.01"
             required
           />
         </div>
@@ -117,7 +177,7 @@ export default function AddFoods() {
             <option value="">Select Category</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.nama}
+                {category.name}
               </option>
             ))}
           </select>
@@ -141,10 +201,10 @@ export default function AddFoods() {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/foods")} // Navigasi ke halaman Foods
+            onClick={() => navigate("/foods")}
             className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
           >
-            Kembali
+            Back
           </button>
         </div>
       </form>

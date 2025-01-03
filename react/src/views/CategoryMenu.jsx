@@ -1,81 +1,137 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 import axiosClient from "../axiosClient";
 
 function CategoryMenu() {
   const [categories, setCategories] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch categories
-    const fetchCategories = async () => {
-      try {
-        const response = await axiosClient.get("/categories");
-        setCategories(response.data.data);
-      } catch (error) {
-        console.error("Failed to fetch categories:", error);
-      }
-    };
-
-    // Fetch cart count
-    const fetchCartCount = async () => {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        console.log("No token found, user not logged in.");
-        return; // Exit if no token
-      }
-
-      try {
-        const response = await axiosClient.get("/cart");
-        const totalCount = response.data.data.reduce(
-          (total, item) => total + item.jumlah,
-          0
-        );
-        setCartCount(totalCount);
-      } catch (error) {
-        console.error("Failed to fetch cart count:", error);
-        // Handle token expiration or invalid token error
-        if (error.response && error.response.status === 401) {
-          console.log("Token may be expired or invalid.");
-          // Optionally, redirect to login or refresh token here
-        }
-      }
-    };
-
     fetchCategories();
-    fetchCartCount();
   }, []);
 
-  const handleCategoryClick = (categoryId) => {
-    navigate(`/categories/${categoryId}`); // Navigate to a new page
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosClient.get("/categories");
+      console.log("API Response:", response.data);
+      setCategories(response.data.data || []);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      setError("Failed to fetch categories. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this category?"))
+      return;
+
+    try {
+      await axiosClient.delete(`/categories/${id}`);
+      fetchCategories();
+    } catch (err) {
+      console.error("Error deleting category:", err);
+      alert("Failed to delete category. Please try again later.");
+    }
+  };
+
+  if (loading) {
+    return <p className="text-center">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500">{error}</p>;
+  }
+
   return (
-    <div>
-      <Navbar cartCount={cartCount} />
-      <div className="container mx-auto py-8 text-center">
-        <h1 className="text-2xl font-bold mb-4">Categories</h1>
-        <div className="flex gap-16 flex-wrap mb-8 text-center justify-center">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryClick(category.id)}
-              className="p-20 border rounded gap-8"
-            >
-              <img
-                src={category.image_url}
-                alt={category.name}
-                className="w-16 h-16 object-cover rounded-full mb-2"
-              />
-              {category.name}
-            </button>
-          ))}
-        </div>
+    <div className="p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Category Menu</h1>
+        <button
+          onClick={() => navigate("/category/tambah-category")}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Tambah Menu
+        </button>
       </div>
-      <Footer />
+      {categories.length > 0 ? (
+        <table className="min-w-full bg-white border border-gray-300">
+          <thead>
+            <tr>
+              <th className="py-2 px-4 border-b">No</th>
+              <th className="py-2 px-4 border-b">Nama</th>
+              <th className="py-2 px-4 border-b">Gambar</th>
+              <th className="py-2 px-4 border-b">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.map((category, index) => (
+              <tr key={category.id}>
+                <td className="py-2 px-4 border-b text-center">{index + 1}</td>
+                <td className="py-2 px-4 border-b">{category.name}</td>
+                <td className="py-2 px-4 border-b text-center">
+                  {category.image_url ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_BASE_URL}${
+                        category.image_url
+                      }`}
+                      alt={category.name}
+                      className="h-16 w-16 object-cover rounded"
+                    />
+                  ) : (
+                    "-"
+                  )}
+                </td>
+                <td className="py-2 px-4 border-b flex space-x-2">
+                  <button
+                    onClick={() => navigate(`/categories/edit/${category.id}`)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(category.id)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="text-center text-gray-500">No categories found.</p>
+      )}
     </div>
   );
 }

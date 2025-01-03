@@ -56,7 +56,7 @@ function ResetPassword() {
     }
 
     try {
-      const response = await axiosClient.post("/auth/reset-password", {
+      const response = await axiosClient.post("/admin/auth/reset-password", {
         email: formData.email,
         password: formData.password,
         password_confirmation: formData.password_confirmation,

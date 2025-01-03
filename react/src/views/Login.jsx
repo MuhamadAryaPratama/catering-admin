@@ -16,7 +16,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await axiosClient.post("/auth/login", {
+      const response = await axiosClient.post("/admin/auth/login", {
         email,
         password,
       });
@@ -35,29 +35,6 @@ export default function Login() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <div className="absolute top-4 left-4">
-        <Link
-          to="/"
-          className="text-indigo-600 hover:text-indigo-500 flex items-center"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
-            />
-          </svg>
-          <span className="text-sm font-semibold">Back to Dashboard</span>
-        </Link>
-      </div>
-
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <img alt="Your Company" src={Logo} className="mx-auto h-30 w-28" />
         <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-gray-900">
