@@ -15,7 +15,6 @@ function CategoryMenu() {
   const fetchCategories = async () => {
     try {
       const response = await axiosClient.get("/categories");
-      // console.log("API Response:", response.data);
       setCategories(response.data.data || []);
     } catch (err) {
       console.error("Error fetching categories:", err);
@@ -39,7 +38,14 @@ function CategoryMenu() {
   };
 
   if (loading) {
-    return <p className="text-center">Loading...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <p className="mt-4">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
@@ -60,70 +66,76 @@ function CategoryMenu() {
       {categories.length > 0 ? (
         <table className="min-w-full bg-white border border-gray-300">
           <thead>
-            <tr>
-              <th className="py-2 px-4 border-b">No</th>
-              <th className="py-2 px-4 border-b">Nama</th>
-              <th className="py-2 px-4 border-b">Gambar</th>
-              <th className="py-2 px-4 border-b">Aksi</th>
+            <tr className="bg-gray-100">
+              <th className="py-2 px-4 border-b w-1/4 text-center">No</th>
+              <th className="py-2 px-4 border-b w-1/4 text-center">Nama</th>
+              <th className="py-2 px-4 border-b w-1/4 text-center">Gambar</th>
+              <th className="py-2 px-4 border-b w-1/4 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody>
             {categories.map((category, index) => (
               <tr key={category.id}>
-                <td className="py-2 px-4 border-b text-center">{index + 1}</td>
-                <td className="py-2 px-4 border-b">{category.name}</td>
-                <td className="py-2 px-4 border-b text-center">
+                <td className="py-2 px-4 border-b w-1/4 text-center">
+                  {index + 1}
+                </td>
+                <td className="py-2 px-4 border-b w-1/4 text-center">
+                  {category.name}
+                </td>
+                <td className="py-2 px-4 border-b w-1/4 text-center">
                   {category.image_url ? (
                     <img
                       src={`${import.meta.env.VITE_API_BASE_URL}${
                         category.image_url
                       }`}
                       alt={category.name}
-                      className="h-16 w-16 object-cover rounded"
+                      className="h-16 w-16 object-cover rounded mx-auto"
                     />
                   ) : (
                     "-"
                   )}
                 </td>
-                <td className="py-2 px-4 border-b flex space-x-2">
-                  <button
-                    onClick={() => navigate(`/category/edit/${category.id}`)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6"
+                <td className="py-2 px-4 border-b w-1/4 text-center">
+                  <div className="flex justify-center items-center space-x-2">
+                    <button
+                      onClick={() => navigate(`/category/edit/${category.id}`)}
+                      className="text-blue-600 hover:text-blue-800"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(category.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="w-6 h-6"
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(category.id)}
+                      className="text-red-600 hover:text-red-800"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                      />
-                    </svg>
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="1.5"
+                        stroke="currentColor"
+                        className="w-6 h-6"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

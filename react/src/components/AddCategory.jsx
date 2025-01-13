@@ -7,6 +7,7 @@ export default function AddCategory() {
     name: "",
     image: null,
   });
+  const [imagePreview, setImagePreview] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export default function AddCategory() {
         return;
       }
       setFormData({ ...formData, image: file });
+      setImagePreview(URL.createObjectURL(file)); // Generate a preview URL
       setError(null);
     }
   };
@@ -72,7 +74,7 @@ export default function AddCategory() {
           name: "",
           image: null,
         });
-        // Reset file input
+        setImagePreview(null); // Clear preview
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = "";
 
@@ -137,6 +139,16 @@ export default function AddCategory() {
             <p className="mt-1 text-sm text-gray-500">
               Accepted formats: JPG, JPEG, PNG (max 2MB)
             </p>
+
+            {imagePreview && (
+              <div className="mt-4">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-40 h-auto rounded-lg shadow"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex space-x-4 pt-4">

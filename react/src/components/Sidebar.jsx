@@ -56,9 +56,73 @@ export default function Sidebar() {
           </Link>
         </li>
         <li className="py-3 pl-6 hover:bg-blue-800 cursor-pointer">
-          <Link to="/orders" className="flex items-center space-x-2">
-            <i className="fas fa-shopping-cart"></i>
-            <span>Orders</span>
+          <Link to="/saran" className="flex items-center space-x-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M12 2.25a9.75 9.75 0 1 0 9.75 9.75A9.75 9.75 0 0 0 12 2.25Zm1.03 14.53a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 0-1.06l3-3a.75.75 0 1 1 1.06 1.06L10.81 12l2.22 2.22a.75.75 0 0 1 0 1.06ZM12 4.5a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V5.25A.75.75 0 0 1 12 4.5Z" />
+            </svg>
+            <span>Saran</span>
+          </Link>
+        </li>
+        <li className="py-3 pl-6 hover:bg-blue-800 cursor-pointer">
+          <Link to="/order" className="flex items-center space-x-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M6 2.25a.75.75 0 0 0-1.5 0v1.5H3A1.5 1.5 0 0 0 1.5 5.25v13.5A1.5 1.5 0 0 0 3 20.25h18a1.5 1.5 0 0 0 1.5-1.5V5.25A1.5 1.5 0 0 0 21 3.75h-1.5v-1.5a.75.75 0 0 0-1.5 0v1.5h-12V2.25Zm-1.5 4.5h15v9H4.5V6.75ZM4.5 18v-1.5h15V18h-15Z" />
+            </svg>
+            <span>Orderan</span>
+          </Link>
+        </li>
+        <li className="py-3 pl-6 hover:bg-blue-800 cursor-pointer">
+          <Link to="/customers" className="flex items-center space-x-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M16.75 3.75a4.25 4.25 0 1 1-8.5 0 4.25 4.25 0 0 1 8.5 0Z" />
+              <path
+                fillRule="evenodd"
+                d="M12 10.25c-4.556 0-8.25 2.597-8.25 5.812v.688a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-.688c0-3.215-3.694-5.812-8.25-5.812Z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span>Data Pelanggan</span>
+          </Link>
+        </li>
+        <li className="py-3 pl-6 hover:bg-blue-800 cursor-pointer">
+          <Link to="/payments" className="flex items-center space-x-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M5.25 2.25h13.5a3 3 0 0 1 3 3v13.5a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V5.25a3 3 0 0 1 3-3Zm.75 9.75a.75.75 0 0 0 0 1.5h12a.75.75 0 0 0 0-1.5h-12Z" />
+            </svg>
+            <span>Pembayaran</span>
+          </Link>
+        </li>
+        <li className="py-3 pl-6 hover:bg-blue-800 cursor-pointer">
+          <Link to="/stok" className="flex items-center space-x-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-6 h-6"
+            >
+              <path d="M2.25 4.5a.75.75 0 0 1 .75-.75h18a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75h-18a.75.75 0 0 1-.75-.75V4.5ZM4.5 6v11.25h15V6h-15Z" />
+            </svg>
+            <span>Stock Barang</span>
           </Link>
         </li>
       </ul>

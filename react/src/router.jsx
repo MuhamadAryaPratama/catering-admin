@@ -7,11 +7,15 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import FoodsMenu from "./views/FoodsMenu";
 import CategoryMenu from "./views/CategoryMenu";
-import ShoppingCart from "./views/ShoppingCart";
+import Orders from "./views/Order";
 import AddFoods from "./components/AddFoods";
 import EditFoods from "./components/EditFoods";
 import AddCategory from "./components/AddCategory";
 import EditCategory from "./components/EditCategory";
+import Suggestion from "./views/Suggestion";
+import CustomerData from "./views/CustomerData";
+import PaymentManagement from "./views/Payment";
+import Stock from "./views/Stock";
 
 // Function to check authentication
 const isAuthenticated = () => {
@@ -57,8 +61,24 @@ const router = createBrowserRouter([
         element: <ProtectedRoute element={<EditCategory />} />,
       },
       {
-        path: "orders",
-        element: <ProtectedRoute element={<ShoppingCart />} />,
+        path: "order",
+        element: <ProtectedRoute element={<Orders />} />,
+      },
+      {
+        path: "saran",
+        element: <ProtectedRoute element={<Suggestion />} />,
+      },
+      {
+        path: "customers",
+        element: <ProtectedRoute element={<CustomerData />} />,
+      },
+      {
+        path: "payments",
+        element: <ProtectedRoute element={<PaymentManagement />} />,
+      },
+      {
+        path: "stok", // Add the new route for Payments
+        element: <ProtectedRoute element={<Stock />} />,
       },
     ],
   },

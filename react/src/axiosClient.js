@@ -1,17 +1,15 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: `${import.meta.env.VITE_API_BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  timeout: 5000, // 5 seconds timeout
+  timeout: 7000,
 });
 
-// Add auth token to requests if it exists
 axiosClient.interceptors.request.use((config) => {
-  // Don't add auth token for authentication-related endpoints
   const publicEndpoints = [
     "/auth/login",
     "/auth/register",
@@ -33,57 +31,32 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-
-    // Handle network errors
     if (!error.response) {
       console.error("Network Error: Please check your internet connection");
-      return Promise.reject(error);
+      return Promise.reject(new Error("Network Error"));
     }
 
-    // Handle token expiration
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response.status === 401 && !error.config._retry) {
       const token = localStorage.getItem("access_token");
-
-      // Skip token refresh for authentication-related endpoints
-      const authEndpoints = [
-        "/auth/login",
-        "/auth/register",
-        "/auth/forgot-password",
-        "/auth/reset-password",
-      ];
-
-      if (
-        authEndpoints.some((endpoint) => originalRequest.url.includes(endpoint))
-      ) {
-        return Promise.reject(error);
-      }
-
-      // Check if this is truly a token expiration or first-time authentication issue
       if (token) {
         try {
-          originalRequest._retry = true;
+          error.config._retry = true;
           const response = await axios.post(
-            "http://localhost:8000/api/auth/refresh",
+            `${import.meta.env.VITE_API_BASE_URL}/api/auth/refresh`,
             null,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-              timeout: 5000,
             }
           );
 
           const newToken = response.data.access_token;
           localStorage.setItem("access_token", newToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return axiosClient(originalRequest);
+          error.config.headers.Authorization = `Bearer ${newToken}`;
+          return axiosClient(error.config);
         } catch (refreshError) {
-          // Only redirect to login if refresh token is invalid
-          if (refreshError.response?.status === 401) {
-            localStorage.removeItem("access_token");
-            window.location.href = "/login";
-          }
+          localStorage.removeItem("access_token");
           return Promise.reject(refreshError);
         }
       }

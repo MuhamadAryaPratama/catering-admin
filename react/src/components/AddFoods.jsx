@@ -11,6 +11,7 @@ export default function AddFoods() {
     category_id: "",
     gambar: null,
   });
+  const [previewImage, setPreviewImage] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
@@ -33,7 +34,6 @@ export default function AddFoods() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Convert harga to number if the field is price
     const processedValue = name === "harga" ? parseFloat(value) : value;
     setFormData({ ...formData, [name]: processedValue });
   };
@@ -41,12 +41,12 @@ export default function AddFoods() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
       if (!file.type.startsWith("image/")) {
         setError("Please select a valid image file.");
         return;
       }
       setFormData({ ...formData, gambar: file });
+      setPreviewImage(URL.createObjectURL(file)); // Generate preview URL
     }
   };
 
@@ -101,7 +101,6 @@ export default function AddFoods() {
 
       if (response.data.status === "success") {
         setSuccess("Food added successfully!");
-        // Clear form
         setFormData({
           nama: "",
           deskripsi: "",
@@ -109,7 +108,7 @@ export default function AddFoods() {
           category_id: "",
           gambar: null,
         });
-        // Redirect after short delay
+        setPreviewImage(null); // Clear preview image
         setTimeout(() => {
           navigate("/foods");
         }, 1500);
@@ -191,6 +190,16 @@ export default function AddFoods() {
             accept="image/*"
             className="w-full border border-gray-300 rounded p-2"
           />
+          {previewImage && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600">Image Preview:</p>
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-32 h-32 object-cover border rounded"
+              />
+            </div>
+          )}
         </div>
         <div className="flex space-x-4">
           <button

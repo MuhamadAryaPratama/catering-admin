@@ -115,8 +115,9 @@ export default function EditCategory() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-lg">Loading...</p>
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <p className="text-lg mt-4">Loading...</p>
       </div>
     );
   }
@@ -191,7 +192,7 @@ export default function EditCategory() {
             </button>
             <button
               type="button"
-              onClick={() => navigate("/categories")}
+              onClick={() => navigate("/category")}
               className="flex-1 bg-gray-600 text-white px-6 py-2.5 rounded-md hover:bg-gray-700 transition duration-200"
             >
               Cancel

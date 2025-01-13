@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -209,5 +210,45 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60
         ]);
+    }
+
+    /**
+     * Get all users data (admin only)
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllUsers()
+    {
+        try {
+            $users = User::select([
+                'id',
+                'name',
+                'email',
+                'alamat',
+                'telephone',
+                'created_at',
+                'updated_at',
+                'email_verified_at'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($user) {
+                $user->status = $user->email_verified_at ? 'Verified' : 'Unverified';
+                $user->role = 'customer';
+                return $user;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully retrieved all users',
+                'data' => $users
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to retrieve users: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
