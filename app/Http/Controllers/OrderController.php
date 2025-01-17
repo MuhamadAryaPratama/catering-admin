@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Food;
 use App\Models\ShoppingCart;
+use App\Services\EmailNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +13,12 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    protected $emailService;
+
+    public function __construct(EmailNotificationService $emailService)
+    {
+        $this->emailService = $emailService;
+    }
     public function storeDirect(Request $request)
     {
         $validated = $request->validate([
@@ -46,6 +53,9 @@ class OrderController extends Controller
                 'total_amount' => $subtotal,
                 'status' => 'pending'
             ]);
+
+            // Send email notification to admin
+            $this->emailService->sendNewOrderNotification($order);
 
             DB::commit();
 
@@ -103,7 +113,7 @@ class OrderController extends Controller
                 $food = Food::findOrFail($item->food_id);
                 $subtotal = $item->jumlah * $food->harga;
                 $totalAmount += $subtotal;
-                $foodNames[] = "{$food->nama} (x{$item->jumlah})"; // Include quantity in food name
+                $foodNames[] = "{$food->nama} (x{$item->jumlah})";
                 $totalQuantity += $item->jumlah;
             }
 
@@ -113,10 +123,13 @@ class OrderController extends Controller
                 'address' => $validated['address'],
                 'phone' => $validated['phone'],
                 'food_name' => implode(', ', $foodNames),
-                'quantity' => $totalQuantity, // Add total quantity from cart
+                'quantity' => $totalQuantity,
                 'total_amount' => $totalAmount,
                 'status' => 'pending',
             ]);
+
+            // Send email notification to admin
+            $this->emailService->sendNewOrderNotification($order);
 
             // Clear the cart after successful order
             ShoppingCart::where('user_id', Auth::id())->delete();
